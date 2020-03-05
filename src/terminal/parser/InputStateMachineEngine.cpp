@@ -256,6 +256,31 @@ bool InputStateMachineEngine::ActionPrintString(const std::wstring_view string)
 // - true iff we successfully dispatched the sequence.
 bool InputStateMachineEngine::ActionPassThroughString(const std::wstring_view string)
 {
+    // TODO GH#XXXX:
+    //   This is a temporary replacement to enable passhthrough
+    //   mode for Windows Terminal. Remove IsVtInputEnabled() logic
+    //   when ConPty learns to handle mouse input properly
+    if (_pDispatch->IsVtInputEnabled())
+    {
+        // Synthesize string into key events that we'll write to the buffer
+        // similar to TerminalInput::_SendInputSequence
+        if (!string.empty())
+        {
+            try
+            {
+                std::deque<std::unique_ptr<IInputEvent>> inputEvents;
+                for (const auto& wch : string)
+                {
+                    inputEvents.push_back(std::make_unique<KeyEvent>(true, 1ui16, 0ui16, 0ui16, wch, 0));
+                }
+                return _pDispatch->WriteInput(inputEvents);
+            }
+            catch (...)
+            {
+                LOG_HR(wil::ResultFromCaughtException());
+            }
+        }
+    }
     return ActionPrintString(string);
 }
 
@@ -271,6 +296,11 @@ bool InputStateMachineEngine::ActionPassThroughString(const std::wstring_view st
 bool InputStateMachineEngine::ActionEscDispatch(const wchar_t wch,
                                                 const std::basic_string_view<wchar_t> /*intermediates*/)
 {
+    if (_pDispatch->IsVtInputEnabled())
+    {
+        return false;
+    }
+
     bool success = false;
 
     // 0x7f is DEL, which we treat effectively the same as a ctrl character.
@@ -309,6 +339,11 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
                                                 const std::basic_string_view<wchar_t> intermediates,
                                                 const std::basic_string_view<size_t> parameters)
 {
+    if (_pDispatch->IsVtInputEnabled())
+    {
+        return false;
+    }
+
     DWORD modifierState = 0;
     short vkey = 0;
     unsigned int function = 0;
@@ -440,6 +475,11 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
 bool InputStateMachineEngine::ActionSs3Dispatch(const wchar_t wch,
                                                 const std::basic_string_view<size_t> /*parameters*/)
 {
+    if (_pDispatch->IsVtInputEnabled())
+    {
+        return false;
+    }
+
     // Ss3 sequence keys aren't modified.
     // When F1-F4 *are* modified, they're sent as CSI sequences, not SS3's.
     const DWORD modifierState = 0;
