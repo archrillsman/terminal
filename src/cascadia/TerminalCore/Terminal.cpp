@@ -178,19 +178,89 @@ void Terminal::UpdateSettings(winrt::Microsoft::Terminal::Settings::ICoreSetting
 
     const short newBufferHeight = viewportSize.Y + _scrollbackLines;
     COORD bufferSize{ viewportSize.X, newBufferHeight };
-    RETURN_IF_FAILED(_buffer->ResizeTraditional(bufferSize));
 
-    auto proposedTop = oldTop;
+    // Save cursor's relative height versus the viewport
+    const short sCursorHeightInViewportBefore = _buffer->GetCursor().GetPosition().Y - _mutableViewport.Top();
+
+    // This will be used to determine where the viewport should be in the new buffer.
+    short oldViewportTop = _mutableViewport.Top();
+
+    // First allocate a new text buffer to take the place of the current one.
+    std::unique_ptr<TextBuffer> newTextBuffer;
+    try
+    {
+        newTextBuffer = std::make_unique<TextBuffer>(bufferSize,
+                                                     _buffer->GetCurrentAttributes(),
+                                                     0, // temporarily set size to 0 so it won't render.
+                                                     _buffer->GetRenderTarget());
+
+        RETURN_IF_FAILED(TextBuffer::Reflow(*_buffer.get(),
+                                            *newTextBuffer.get(),
+                                            _mutableViewport,
+                                            &oldViewportTop));
+    }
+    CATCH_RETURN();
+
+    // Conpty resizes a little oddly - if the height decreased, and there were
+    // blank lines at the bottom, those lines will get trimmed. If there's not
+    // blank lines, then the top will get "shifted down", moving the top line
+    // into scrollback. See GH#3490 for more details.
+    //
+    // If the final position in the buffer is on the bottom row of the new
+    // viewport, then we're going to need to move the top down. Otherwise, move
+    // the bottom up.
+    //
+    // There are also important things to consider with line wrapping.
+    // * If a line in scrollback wrapped that didn't previously, we'll need to
+    //   make sure to have the new viewport down another line. This will cause
+    //   our top to move down.
+    // * If a line _in the viewport_ wrapped that didn't previously, then the
+    //   conpty buffer will also have that wrapped line, and will move the
+    //   cursor & text down a line in response. This causes our bottom to move
+    //   down.
+    //
+    // We're going to use a combo of both these things to calculate where the
+    // new viewport should be. To keep in sync with conpty, we'll need to make
+    // sure that any lines that entered the scrollback _stay in scrollback_. We
+    // do that by taking the max of
+    // * Where the old top line in the viewport exists in the new buffer (as
+    //   calculated by TextBuffer::Reflow)
+    // * Where the bottom of the text in the new buffer is (and using that to
+    //   calculate another proposed top location).
+
+    const COORD newCursorPos = newTextBuffer->GetCursor().GetPosition();
+
+#pragma warning(push)
+#pragma warning(disable : 26496) // cpp core checks wants this const, but it's assigned immediately below...
+    COORD newLastChar = newCursorPos;
+    try
+    {
+        newLastChar = newTextBuffer->GetLastNonSpaceCharacter(_mutableViewport);
+    }
+    CATCH_LOG();
+#pragma warning(pop)
+
+    const auto maxRow = std::max(newLastChar.Y, newCursorPos.Y);
+
+    const short proposedTopFromLastLine = ::base::saturated_cast<short>(maxRow - viewportSize.Y + 1);
+    const short proposedTopFromScrollback = oldViewportTop;
+
+    short proposedTop = std::max(proposedTopFromLastLine,
+                                 proposedTopFromScrollback);
+
     const auto newView = Viewport::FromDimensions({ 0, proposedTop }, viewportSize);
     const auto proposedBottom = newView.BottomExclusive();
     // If the new bottom would be below the bottom of the buffer, then slide the
     // top up so that we'll still fit within the buffer.
     if (proposedBottom > bufferSize.Y)
     {
-        proposedTop -= (proposedBottom - bufferSize.Y);
+        proposedTop = ::base::saturated_cast<short>(proposedTop - (proposedBottom - bufferSize.Y));
     }
 
     _mutableViewport = Viewport::FromDimensions({ 0, proposedTop }, viewportSize);
+
+    _buffer.swap(newTextBuffer);
+
     _scrollOffset = 0;
     _NotifyScrollEvent();
 

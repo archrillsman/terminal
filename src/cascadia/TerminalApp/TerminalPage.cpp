@@ -372,6 +372,7 @@ namespace winrt::TerminalApp::implementation
                 WUX::Controls::IconSourceElement iconElement;
                 iconElement.IconSource(iconSource);
                 profileMenuItem.Icon(iconElement);
+                Automation::AutomationProperties::SetAccessibilityView(iconElement, Automation::Peers::AccessibilityView::Raw);
             }
 
             if (profile.GetGuid() == defaultProfileGuid)
@@ -510,7 +511,6 @@ namespace winrt::TerminalApp::implementation
 
         // Create a connection based on the values in our settings object.
         const auto connection = _CreateConnectionFromSettings(profileGuid, settings);
-
         TermControl term{ settings, connection };
 
         // Add the new tab to the list of our tabs.
