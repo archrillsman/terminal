@@ -812,6 +812,44 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
     }
 
     // Method Description:
+    // - Send this particular mouse event to the terminal.
+    //   See Terminal::SendMouseEvent for more information.
+    // Arguments:
+    // - vkey: The vkey of the key pressed.
+    // - states: The Microsoft::Terminal::Core::ControlKeyStates representing the modifier key states.
+    bool TermControl::_TrySendMouseEvent(Windows::UI::Input::PointerPoint const& point, bool goingDown)
+    {
+        const auto props = point.Properties();
+
+        // Get terminal position
+        const auto terminalPosition = _GetTerminalPosition(point.Position());
+
+        // Which mouse buttons were pressed
+        unsigned int uiButton{};
+
+        if (props.IsLeftButtonPressed())
+        {
+            uiButton = goingDown ? WM_LBUTTONDOWN : WM_LBUTTONUP;
+        }
+        else if (props.IsMiddleButtonPressed())
+        {
+            uiButton = goingDown ? WM_MBUTTONDOWN : WM_MBUTTONUP;
+        }
+        else if (props.IsRightButtonPressed())
+        {
+            uiButton = goingDown ? WM_RBUTTONDOWN : WM_RBUTTONUP;
+        }
+
+        // Which modifier keys are pressed
+        const auto modifiers = _GetPressedModifierKeys();
+
+        // Mouse wheel data
+        const short sWheelDelta = ::base::saturated_cast<short>(props.MouseWheelDelta());
+
+        return _terminal->SendMouseEvent(terminalPosition, uiButton, modifiers, sWheelDelta);
+    }
+
+    // Method Description:
     // - handle a mouse click event. Begin selection process.
     // Arguments:
     // - sender: the XAML element responding to the pointer input
@@ -843,6 +881,12 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
             // macro directly with a VirtualKeyModifiers
             const auto altEnabled = WI_IsFlagSet(modifiers, static_cast<uint32_t>(VirtualKeyModifiers::Menu));
             const auto shiftEnabled = WI_IsFlagSet(modifiers, static_cast<uint32_t>(VirtualKeyModifiers::Shift));
+
+            if (_TrySendMouseEvent(point, true))
+            {
+                args.Handled(true);
+                return;
+            }
 
             if (point.Properties().IsLeftButtonPressed())
             {
@@ -1014,6 +1058,7 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
         _ReleasePointerCapture(sender, args);
 
         const auto ptr = args.Pointer();
+        const auto point = args.GetCurrentPoint(*this);
 
         if (ptr.PointerDeviceType() == Windows::Devices::Input::PointerDeviceType::Mouse || ptr.PointerDeviceType() == Windows::Devices::Input::PointerDeviceType::Pen)
         {
@@ -1021,6 +1066,12 @@ namespace winrt::Microsoft::Terminal::TerminalControl::implementation
             // static_cast to a uint32_t because we can't use the WI_IsFlagSet
             // macro directly with a VirtualKeyModifiers
             const auto shiftEnabled = WI_IsFlagSet(modifiers, static_cast<uint32_t>(VirtualKeyModifiers::Shift));
+
+            if (_TrySendMouseEvent(point, true))
+            {
+                args.Handled(true);
+                return;
+            }
 
             if (_terminal->IsCopyOnSelectActive())
             {
