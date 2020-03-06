@@ -891,3 +891,8 @@ bool ConhostInternalGetSet::PrivateScrollRegion(const SMALL_RECT scrollRect,
                                               destinationOrigin,
                                               standardFillAttrs));
 }
+
+bool ConhostInternalGetSet::PrivateIsVtInputEnabled() const
+{
+    return _io.GetActiveInputBuffer()->IsInVirtualTerminalInputMode();
+}

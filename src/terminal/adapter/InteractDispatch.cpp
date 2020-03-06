@@ -203,3 +203,8 @@ bool InteractDispatch::MoveCursor(const size_t row, const size_t col)
 
     return success;
 }
+
+bool InteractDispatch::IsVtInputEnabled() const
+{
+    return _pConApi->PrivateIsVtInputEnabled();
+}
