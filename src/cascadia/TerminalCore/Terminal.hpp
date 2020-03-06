@@ -95,6 +95,16 @@ public:
     bool SetCursorStyle(const ::Microsoft::Console::VirtualTerminal::DispatchTypes::CursorStyle cursorStyle) noexcept override;
     bool SetDefaultForeground(const COLORREF color) noexcept override;
     bool SetDefaultBackground(const COLORREF color) noexcept override;
+
+    bool SetCursorKeysMode(const bool applicationMode) override;
+    bool SetKeypadMode(const bool applicationMode) override;
+    bool EnableVT200MouseMode(const bool enabled) override;
+    bool EnableUTF8ExtendedMouseMode(const bool enabled) override;
+    bool EnableSGRExtendedMouseMode(const bool enabled) override;
+    bool EnableButtonEventMouseMode(const bool enabled) override;
+    bool EnableAnyEventMouseMode(const bool enabled) override;
+
+    bool IsVtInputEnabled() const;
 #pragma endregion
 
 #pragma region ITerminalInput

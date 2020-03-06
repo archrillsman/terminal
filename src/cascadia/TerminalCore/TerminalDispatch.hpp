@@ -38,6 +38,16 @@ public:
     bool InsertCharacter(const size_t count) noexcept override;
     bool EraseInDisplay(const ::Microsoft::Console::VirtualTerminal::DispatchTypes::EraseType eraseType) noexcept override;
 
+
+    bool SetCursorKeysMode(const bool applicationMode) noexcept override; // DECCKM
+    bool SetKeypadMode(const bool applicationMode) noexcept override; // DECKPAM, DECKPNM
+
+    bool EnableVT200MouseMode(const bool enabled) noexcept override; // ?1000
+    bool EnableUTF8ExtendedMouseMode(const bool enabled) noexcept override; // ?1005
+    bool EnableSGRExtendedMouseMode(const bool enabled) noexcept override; // ?1006
+    bool EnableButtonEventMouseMode(const bool enabled) noexcept override; // ?1002
+    bool EnableAnyEventMouseMode(const bool enabled) noexcept override; // ?1003
+
 private:
     ::Microsoft::Terminal::Core::ITerminalApi& _terminalApi;
 

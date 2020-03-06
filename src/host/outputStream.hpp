@@ -166,7 +166,7 @@ public:
                              const COORD destinationOrigin,
                              const bool standardFillAttrs) noexcept override;
 
-    bool PrivateIsVtInputEnabled() const;
+    bool PrivateIsVtInputEnabled() const override;
 
 private:
     Microsoft::Console::IIoProvider& _io;

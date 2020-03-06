@@ -45,6 +45,16 @@ namespace Microsoft::Terminal::Core
         virtual bool SetDefaultForeground(const DWORD color) noexcept = 0;
         virtual bool SetDefaultBackground(const DWORD color) noexcept = 0;
 
+        virtual bool SetCursorKeysMode(const bool applicationMode) = 0;
+        virtual bool SetKeypadMode(const bool applicationMode) = 0;
+        virtual bool EnableVT200MouseMode(const bool enabled) = 0;
+        virtual bool EnableUTF8ExtendedMouseMode(const bool enabled) = 0;
+        virtual bool EnableSGRExtendedMouseMode(const bool enabled) = 0;
+        virtual bool EnableButtonEventMouseMode(const bool enabled) = 0;
+        virtual bool EnableAnyEventMouseMode(const bool enabled) = 0;
+
+        virtual bool IsVtInputEnabled() const = 0;
+
     protected:
         ITerminalApi() = default;
     };

@@ -514,3 +514,50 @@ try
     return true;
 }
 CATCH_LOG_RETURN_FALSE()
+
+bool Terminal::SetCursorKeysMode(const bool applicationMode)
+{
+    _terminalInput->ChangeCursorKeysMode(applicationMode);
+    return true;
+}
+
+bool Terminal::SetKeypadMode(const bool applicationMode)
+{
+    _terminalInput->ChangeKeypadMode(applicationMode);
+    return true;
+}
+
+bool Terminal::EnableVT200MouseMode(const bool enabled)
+{
+    _terminalInput->EnableDefaultTracking(enabled);
+    return true;
+}
+
+bool Terminal::EnableUTF8ExtendedMouseMode(const bool enabled)
+{
+    _terminalInput->SetUtf8ExtendedMode(enabled);
+    return true;
+}
+
+bool Terminal::EnableSGRExtendedMouseMode(const bool enabled)
+{
+    _terminalInput->SetSGRExtendedMode(enabled);
+    return true;
+}
+
+bool Terminal::EnableButtonEventMouseMode(const bool enabled)
+{
+    _terminalInput->EnableButtonEventTracking(enabled);
+    return true;
+}
+
+bool Terminal::EnableAnyEventMouseMode(const bool enabled)
+{
+    _terminalInput->EnableAnyEventTracking(enabled);
+    return true;
+}
+
+bool Terminal::IsVtInputEnabled() const
+{
+    return true;
+}

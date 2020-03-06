@@ -213,3 +213,116 @@ try
     return _terminalApi.EraseInDisplay(eraseType);
 }
 CATCH_LOG_RETURN_FALSE()
+
+// - DECKPAM, DECKPNM - Sets the keypad input mode to either Application mode or Numeric mode (true, false respectively)
+// Arguments:
+// - applicationMode - set to true to enable Application Mode Input, false for Numeric Mode Input.
+// Return Value:
+// - True if handled successfully. False otherwise.
+bool TerminalDispatch::SetKeypadMode(const bool fApplicationMode) noexcept
+{
+    // TODO GH#XXXX:
+    //   This is a temporary replacement to enable passhthrough
+    //   mode for Windows Terminal. Replace with proper _pConApi
+    //   call below when ConPty has been properly updated.
+    _terminalApi.SetKeypadMode(fApplicationMode);
+    return false;
+}
+
+// - DECCKM - Sets the cursor keys input mode to either Application mode or Normal mode (true, false respectively)
+// Arguments:
+// - applicationMode - set to true to enable Application Mode Input, false for Normal Mode Input.
+// Return Value:
+// - True if handled successfully. False otherwise.
+bool TerminalDispatch::SetCursorKeysMode(const bool applicationMode) noexcept
+{
+    // TODO GH#XXXX:
+    //   This is a temporary replacement to enable passhthrough
+    //   mode for Windows Terminal. Replace with proper _pConApi
+    //   call below when ConPty has been properly updated.
+    _terminalApi.SetCursorKeysMode(applicationMode);
+    return false;
+}
+
+//Routine Description:
+// Enable VT200 Mouse Mode - Enables/disables the mouse input handler in default tracking mode.
+//Arguments:
+// - enabled - true to enable, false to disable.
+// Return value:
+// True if handled successfully. False otherwise.
+bool TerminalDispatch::EnableVT200MouseMode(const bool enabled) noexcept
+{
+    // TODO GH#XXXX:
+    //   This is a temporary replacement to enable passhthrough
+    //   mode for Windows Terminal. Replace with proper _pConApi
+    //   call below when ConPty has been properly updated.
+    _terminalApi.EnableVT200MouseMode(enabled);
+    return false;
+}
+
+//Routine Description:
+// Enable UTF-8 Extended Encoding - this changes the encoding scheme for sequences
+//      emitted by the mouse input handler. Does not enable/disable mouse mode on its own.
+//Arguments:
+// - enabled - true to enable, false to disable.
+// Return value:
+// True if handled successfully. False otherwise.
+bool TerminalDispatch::EnableUTF8ExtendedMouseMode(const bool enabled) noexcept
+{
+    // TODO GH#XXXX:
+    //   This is a temporary replacement to enable passhthrough
+    //   mode for Windows Terminal. Replace with proper _pConApi
+    //   call below when ConPty has been properly updated.
+    _terminalApi.EnableUTF8ExtendedMouseMode(enabled);
+    return false;
+}
+
+//Routine Description:
+// Enable SGR Extended Encoding - this changes the encoding scheme for sequences
+//      emitted by the mouse input handler. Does not enable/disable mouse mode on its own.
+//Arguments:
+// - enabled - true to enable, false to disable.
+// Return value:
+// True if handled successfully. False otherwise.
+bool TerminalDispatch::EnableSGRExtendedMouseMode(const bool enabled) noexcept
+{
+    // TODO GH#XXXX:
+    //   This is a temporary replacement to enable passhthrough
+    //   mode for Windows Terminal. Replace with proper _pConApi
+    //   call below when ConPty has been properly updated.
+    _terminalApi.EnableSGRExtendedMouseMode(enabled);
+    return false;
+}
+
+//Routine Description:
+// Enable Button Event mode - send mouse move events WITH A BUTTON PRESSED to the input.
+//Arguments:
+// - enabled - true to enable, false to disable.
+// Return value:
+// True if handled successfully. False otherwise.
+bool TerminalDispatch::EnableButtonEventMouseMode(const bool enabled) noexcept
+{
+    // TODO GH#XXXX:
+    //   This is a temporary replacement to enable passhthrough
+    //   mode for Windows Terminal. Replace with proper _pConApi
+    //   call below when ConPty has been properly updated.
+    _terminalApi.EnableButtonEventMouseMode(enabled);
+    return false;
+}
+
+//Routine Description:
+// Enable Any Event mode - send all mouse events to the input.
+
+//Arguments:
+// - enabled - true to enable, false to disable.
+// Return value:
+// True if handled successfully. False otherwise.
+bool TerminalDispatch::EnableAnyEventMouseMode(const bool enabled) noexcept
+{
+    // TODO GH#XXXX:
+    //   This is a temporary replacement to enable passhthrough
+    //   mode for Windows Terminal. Replace with proper _pConApi
+    //   call below when ConPty has been properly updated.
+    _terminalApi.EnableAnyEventMouseMode(enabled);
+    return false;
+}
