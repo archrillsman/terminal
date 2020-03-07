@@ -48,6 +48,9 @@ public:
     bool EnableButtonEventMouseMode(const bool enabled) noexcept override; // ?1002
     bool EnableAnyEventMouseMode(const bool enabled) noexcept override; // ?1003
 
+    bool SetPrivateModes(const std::basic_string_view<::Microsoft::Console::VirtualTerminal::DispatchTypes::PrivateModeParams> /*params*/) noexcept override; // DECSET
+    bool ResetPrivateModes(const std::basic_string_view<::Microsoft::Console::VirtualTerminal::DispatchTypes::PrivateModeParams> /*params*/) noexcept override; // DECRST
+
 private:
     ::Microsoft::Terminal::Core::ITerminalApi& _terminalApi;
 
@@ -56,4 +59,7 @@ private:
     bool _SetBoldColorHelper(const ::Microsoft::Console::VirtualTerminal::DispatchTypes::GraphicsOptions opt) noexcept;
     bool _SetDefaultColorHelper(const ::Microsoft::Console::VirtualTerminal::DispatchTypes::GraphicsOptions opt) noexcept;
     void _SetGraphicsOptionHelper(const ::Microsoft::Console::VirtualTerminal::DispatchTypes::GraphicsOptions opt) noexcept;
+
+    bool _SetResetPrivateModes(const std::basic_string_view<::Microsoft::Console::VirtualTerminal::DispatchTypes::PrivateModeParams> params, const bool enable) noexcept;
+    bool _PrivateModeParamsHelper(const ::Microsoft::Console::VirtualTerminal::DispatchTypes::PrivateModeParams param, const bool enable) noexcept;
 };

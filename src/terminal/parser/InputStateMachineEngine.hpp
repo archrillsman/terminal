@@ -168,6 +168,7 @@ namespace Microsoft::Console::VirtualTerminal
         bool DispatchControlCharsFromEscape() const noexcept override;
         bool DispatchIntermediatesFromEscape() const noexcept override;
 
+        std::function<bool()> _pfnFlushToInputQueue;
     private:
         const std::unique_ptr<IInteractDispatch> _pDispatch;
         bool _lookingForDSR;

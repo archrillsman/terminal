@@ -298,7 +298,7 @@ bool InputStateMachineEngine::ActionEscDispatch(const wchar_t wch,
 {
     if (_pDispatch->IsVtInputEnabled())
     {
-        return false;
+        return _pfnFlushToInputQueue();
     }
 
     bool success = false;
@@ -341,7 +341,7 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
 {
     if (_pDispatch->IsVtInputEnabled())
     {
-        return false;
+        return _pfnFlushToInputQueue();
     }
 
     DWORD modifierState = 0;
@@ -477,7 +477,7 @@ bool InputStateMachineEngine::ActionSs3Dispatch(const wchar_t wch,
 {
     if (_pDispatch->IsVtInputEnabled())
     {
-        return false;
+        return _pfnFlushToInputQueue();
     }
 
     // Ss3 sequence keys aren't modified.

@@ -43,7 +43,11 @@ VtInputThread::VtInputThread(_In_ wil::unique_hfile hPipe,
 
     auto engine = std::make_unique<InputStateMachineEngine>(std::move(dispatch), inheritCursor);
 
+    auto eh = engine.get();
+
     _pInputStateMachine = std::make_unique<StateMachine>(std::move(engine));
+
+    eh->_pfnFlushToInputQueue = std::bind(&StateMachine::FlushToTerminal, _pInputStateMachine.get());
 }
 
 // Method Description:
