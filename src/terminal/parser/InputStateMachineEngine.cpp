@@ -92,7 +92,8 @@ InputStateMachineEngine::InputStateMachineEngine(std::unique_ptr<IInteractDispat
 
 InputStateMachineEngine::InputStateMachineEngine(std::unique_ptr<IInteractDispatch> pDispatch, const bool lookingForDSR) :
     _pDispatch(std::move(pDispatch)),
-    _lookingForDSR(lookingForDSR)
+    _lookingForDSR(lookingForDSR),
+    _pfnFlushToInputQueue(nullptr)
 {
     THROW_HR_IF_NULL(E_INVALIDARG, _pDispatch.get());
 }
@@ -296,7 +297,7 @@ bool InputStateMachineEngine::ActionPassThroughString(const std::wstring_view st
 bool InputStateMachineEngine::ActionEscDispatch(const wchar_t wch,
                                                 const std::basic_string_view<wchar_t> /*intermediates*/)
 {
-    if (_pDispatch->IsVtInputEnabled())
+    if (_pDispatch->IsVtInputEnabled() && _pfnFlushToInputQueue)
     {
         return _pfnFlushToInputQueue();
     }
@@ -339,7 +340,7 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
                                                 const std::basic_string_view<wchar_t> intermediates,
                                                 const std::basic_string_view<size_t> parameters)
 {
-    if (_pDispatch->IsVtInputEnabled())
+    if (_pDispatch->IsVtInputEnabled() && _pfnFlushToInputQueue)
     {
         return _pfnFlushToInputQueue();
     }
@@ -475,7 +476,7 @@ bool InputStateMachineEngine::ActionCsiDispatch(const wchar_t wch,
 bool InputStateMachineEngine::ActionSs3Dispatch(const wchar_t wch,
                                                 const std::basic_string_view<size_t> /*parameters*/)
 {
-    if (_pDispatch->IsVtInputEnabled())
+    if (_pDispatch->IsVtInputEnabled() && _pfnFlushToInputQueue)
     {
         return _pfnFlushToInputQueue();
     }
@@ -1081,6 +1082,11 @@ bool InputStateMachineEngine::DispatchControlCharsFromEscape() const noexcept
 bool InputStateMachineEngine::DispatchIntermediatesFromEscape() const noexcept
 {
     return true;
+}
+
+void InputStateMachineEngine::SetFlushToInputQueueCallback(std::function<bool()> pfnFlushToInputQueue)
+{
+    _pfnFlushToInputQueue = pfnFlushToInputQueue;
 }
 
 // Method Description:

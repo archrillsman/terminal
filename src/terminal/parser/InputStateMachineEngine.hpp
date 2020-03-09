@@ -168,9 +168,11 @@ namespace Microsoft::Console::VirtualTerminal
         bool DispatchControlCharsFromEscape() const noexcept override;
         bool DispatchIntermediatesFromEscape() const noexcept override;
 
-        std::function<bool()> _pfnFlushToInputQueue;
+        void SetFlushToInputQueueCallback(std::function<bool()> pfnFlushToInputQueue);
+
     private:
         const std::unique_ptr<IInteractDispatch> _pDispatch;
+        std::function<bool()> _pfnFlushToInputQueue;
         bool _lookingForDSR;
         DWORD _mouseButtonState = 0;
 
